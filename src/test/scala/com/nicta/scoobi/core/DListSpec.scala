@@ -81,4 +81,24 @@ class DListSpec extends NictaSimpleJobs with TerminationMatchers {
     }
   }
 
+  "DList zipWithIndex works" >> { implicit sc: SC =>
+    
+    sc.setMinReducers(51)    
+    val len = 2000
+    
+    val dlist = (1 to len).toDList.map(_.toString)
+    
+    val withIndexes = dlist.zipWithIndex
+    
+    val words = withIndexes.map(_._1)    
+    val indexes = withIndexes.map(_._2)
+    
+    
+    val (uniqueWords, minIndex, uniqueIndexes, maxIndex) = run(words.distinct.size, indexes.min, indexes.distinct.size, indexes.max)
+    
+    uniqueWords must_== len
+    minIndex must_== 0
+    uniqueIndexes must_== len
+    maxIndex must_== (len - 1)
+  }
 }
